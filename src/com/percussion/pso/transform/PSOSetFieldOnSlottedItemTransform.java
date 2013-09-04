@@ -108,13 +108,23 @@ public class PSOSetFieldOnSlottedItemTransform  implements IPSItemInputTransform
 		try{
 			//Get all AA relationships and if we find one including the specified slot
 			//set the specified field to the specified value;
+			boolean found = false;
 			for (PSAaRelationship rel : cws.loadContentRelations(filter,true)) {
 				if(rel.getSlotName().equals(configParams.slotName)){
 					request.setParameter(configParams.fieldName, configParams.value);
 					log.debug("Setting " + configParams.fieldName + " to " + configParams.value );
+					found = true;
 					break;
 				}
 		  }
+			
+			//Handle a toggle if this is a boolean field
+			if(!found && configParams.value != null && (configParams.value.toLowerCase().equals("true") || configParams.value.toLowerCase().equals("yes"))){
+				request.setParameter(configParams.fieldName, "false");
+			}else if(!found && configParams.value != null && (configParams.value.toLowerCase().equals("false") || configParams.value.toLowerCase().equals("no"))){
+				request.setParameter(configParams.fieldName, "true");			
+			}
+			
 		} catch (PSErrorException e) {
 			log.debug("Error processing slot relationships for item " + "" );
 		}finally{} 
